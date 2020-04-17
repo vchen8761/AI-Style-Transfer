@@ -37,6 +37,19 @@ class ImageUtils:
         img = img[tf.newaxis, :]
         return img
 
+    def image_op(images, op, dim_of = 0):
+        shapes = [
+            tf.cast(tf.shape(i)[1:3], tf.float32) 
+            for i in images
+        ]
+
+        for i in range(len(images)):
+            if any(shapes[i] != shapes[dim_of]):
+                images[i] = tf.image.resize(
+                    images[i], 
+                    tf.cast(shapes[dim_of], tf.int32))
+        
+        return op(*images)
 
     def grab_image(path):
         if len(path) > 5 and path[0:4] in ("www.", "http"):

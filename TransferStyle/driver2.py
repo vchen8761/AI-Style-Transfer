@@ -31,6 +31,7 @@ else:
 
 # Grab content image from link
 content_image = ImageUtils.grab_image('https://gradschool.cornell.edu/wp-content/uploads/2018/07/JonPark.jpg')
+# content_image = ImageUtils.grab_image('images/cloud1.jpg')
 
 # Uses model from Tensor Flow Hub 
 
@@ -56,9 +57,12 @@ for i, filename in enumerate(dirs):
 
     # Attempt style transfer on content image with current style image
     try: 
-        style_image   = ImageUtils.grab_image(path_to_pics + filename)
-        style_orig    = style_image
-        style_image   = ImageUtils.clip_0_1(content_image + style_image)
+        style_image  = ImageUtils.grab_image(path_to_pics + filename)
+        style_orig   = style_image
+        style_image  = ImageUtils.image_op(
+            images = [content_image, style_image],
+            op     = lambda a, b: ImageUtils.clip_0_1(a + b)
+        )
 
         print(" - Generating image", i)
         stylized_image = hub_model(tf.constant(content_image), tf.constant(style_image))[0]
@@ -73,7 +77,10 @@ for i, filename in enumerate(dirs):
             ((2,3,1), content_image,    'Content Image'),
             ((2,3,4), stylized_image,       'New Image'),
 
-            ((1,3,2), (content_image + stylized_image)/2,    'Average Image'),
+            ((1,3,2), ImageUtils.image_op(
+                images = [content_image, stylized_image, style_image],
+                op     = lambda a, b, c: (2 * a + 2 * b)/4
+            ), 'Average Image'),
 
             ((2,3,3), style_orig,         'Style Image'),
             ((2,3,6), style_image,    'New Style Image'),
