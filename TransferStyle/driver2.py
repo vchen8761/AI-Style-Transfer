@@ -1,42 +1,45 @@
-# Import os for traversing directory
-import os
-
 # Importing TensorFlow and 
 # TensorFlow Hub for style transfer model
+print(" - Starting to import TensorFlow")
 import tensorflow as tf
+print("\t> Finished")
 import tensorflow_hub as hub
 
+# Import os for traversing directory
+from os import listdir
+from sys import platform
+
 # For plotting
-import IPython.display as display
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-mpl.rcParams['figure.figsize'] = (12,12)
-mpl.rcParams['axes.grid'] = False
 
 # Other helpers
-import numpy as np
-import PIL.Image
-import time
-import functools
 from random import shuffle
 
-from StyleTrans import *
-from ImageUtils import *
-from StyleContentModel import *
-
-import PIL
-from PIL import Image
+from StyleContentModel  import StyleContentModel
+from ImageUtils         import ImageUtils
+from StyleTrans         import StyleTrans
 
 # Anime Style Images Dataset (Absolute and relative paths)
 # https://github.com/Mckinsey666/Anime-Face-Dataset
-# path_to_pics = "../../cropped/"
-path_to_pics = "../Anime-Face-Dataset/cropped/"
+if platform == "darwin":
+    # Specifics for Vadim
+    path_to_pics = "../../cropped/"
+
+else:
+    # Specifics for Victor
+    path_to_pics = "../Anime-Face-Dataset/cropped/"
 
 # Grab content image from link
 content_image = ImageUtils.grab_image('https://gradschool.cornell.edu/wp-content/uploads/2018/07/JonPark.jpg')
 
+# Uses model from Tensor Flow Hub 
+
+print(" - Loading pre-trained model from hub")
+hub_model = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/1')
+print("\t> Finished")
+
 # Make list of style images and shuffle the list
-dirs = os.listdir(path_to_pics)
+dirs = listdir(path_to_pics)
 shuffle(dirs)
 
 # Opens MatPlotLib figure
@@ -45,10 +48,11 @@ fig = plt.gcf()
 fig.canvas.set_window_title('Style Transfer')
 
 # For a whole directory
+fails = 0
 for i, filename in enumerate(dirs):
 
     # Limit number of style transfers
-    if i > 5: break
+    if i - fails > 5: break
 
     # Attempt style transfer on content image with current style image
     try: 
@@ -56,8 +60,7 @@ for i, filename in enumerate(dirs):
         style_orig    = style_image
         style_image   = ImageUtils.clip_0_1(content_image + style_image)
 
-        # Uses model from Tensor Flow Hub 
-        hub_model = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/1')
+        print(" - Generating image", i)
         stylized_image = hub_model(tf.constant(content_image), tf.constant(style_image))[0]
 
         # Uncomment this and comment out previous stylized_image definition to
@@ -66,12 +69,37 @@ for i, filename in enumerate(dirs):
 
         # Clear figure and update images
         fig.clf()
-        plt.subplot(1, 3, 1); ImageUtils.imshow(content_image,  'Content Image')
-        plt.subplot(1, 3, 2); ImageUtils.imshow(stylized_image, 'New Image')
-        plt.subplot(1, 3, 3); ImageUtils.imshow(style_orig,    'Style Image')
+        plotset1 = (    # This shows 2x3 5-plot layout
+            ((2,3,1), content_image,    'Content Image'),
+            ((2,3,4), stylized_image,       'New Image'),
+
+            ((1,3,2), (content_image + stylized_image)/2,    'Average Image'),
+
+            ((2,3,3), style_orig,         'Style Image'),
+            ((2,3,6), style_image,    'New Style Image'),
+        )
+
+        plotset2 = (    # This shows 1x3 simple layout
+            ((1,3,1), content_image,    'Content Image'),
+            ((1,3,2), stylized_image,       'New Image'),
+            ((1,3,3), style_orig,         'Style Image'),
+        )
+
+        for c, i, t in plotset1:
+            plt.subplot(*c)
+            ImageUtils.imshow(i, t)
+        
         ImageUtils.flashplot()
 
+        print("\t> Finished")
+
     except Exception as e:
-        if input(f" - Image failed on {filename}: {e}.\n - Type q to quit or anything else to continue: ") == "q":
-            break
+        print(" - Failed on image", i)
+        print(f"\t> Image failed on {filename}: {e}.")
+        fails += 1      # This skips fails. To be fixed later
+        
+        # if "n" == input(f" - Image failed on {filename}: {e}.\n - Type 'n' if to stop, anything else to go: "):
+            # break
+
+
 input('Finish? : ')

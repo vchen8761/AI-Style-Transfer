@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class StyleContentModel(tf.keras.models.Model):
-
+    
     """
     This will be used for returning the content and style 
     features from the respective images.

@@ -1,23 +1,8 @@
+from StyleContentModel import StyleContentModel
+from ImageUtils import ImageUtils
+
 # Importing TensorFlow
-import sys
-
 import tensorflow as tf
-
-# For plotting
-import IPython.display as display
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-mpl.rcParams['figure.figsize'] = (12,12)
-mpl.rcParams['axes.grid'] = False
-
-# Other helpers
-import numpy as np
-import PIL.Image
-import time
-import functools
-
-from ImageUtils import *
-from StyleContentModel import *
 
 class StyleTrans:
 

@@ -1,24 +1,23 @@
-# Importing TensorFlow
-import sys
-
-import tensorflow as tf
-
 # For plotting
-import IPython.display as display
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-mpl.rcParams['figure.figsize'] = (12,12)
-mpl.rcParams['axes.grid'] = False
 
 # Other helpers
 import numpy as np
-import PIL.Image
-import time
-import functools
 
-from StyleTrans import *
-from ImageUtils import *
-from StyleContentModel import *
+print(" - Starting to import StyleTrans")
+import StyleTrans.StyleTrans
+print(" - Starting to import ImageUtils")
+import ImageUtils.ImageUtils
+print(" - Starting to import StyleContentModel")
+import StyleContentModel.StyleContentModel
+
+
+# Importing TensorFlow
+import tensorflow as tf
+
+
+
+
 
 plt.figure(figsize=(12,6))
 
@@ -27,7 +26,6 @@ ImageUtils.enableflashplot()
 transferer = StyleTrans(
     content_path = 'https://gradschool.cornell.edu/wp-content/uploads/2018/07/JonPark.jpg',
     style_path   = 'https://image.freepik.com/free-vector/abstract-dynamic-pattern-wallpaper-vector_53876-59131.jpg' 
-    #'style_path   = images/deku.jpg'
 )
 
 # # Averaging two images
