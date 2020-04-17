@@ -1,7 +1,10 @@
-# Importing TensorFlow
-import sys, os
+# Import os for traversing directory
+import os
 
+# Importing TensorFlow and 
+# TensorFlow Hub for style transfer model
 import tensorflow as tf
+import tensorflow_hub as hub
 
 # For plotting
 import IPython.display as display
@@ -21,35 +24,47 @@ from StyleTrans import *
 from ImageUtils import *
 from StyleContentModel import *
 
-import tensorflow_hub as hub
-
 import PIL
 from PIL import Image
 
+# Anime Style Images Dataset (Absolute and relative paths)
 # https://github.com/Mckinsey666/Anime-Face-Dataset
 # path_to_pics = "../../cropped/"
 path_to_pics = "../Anime-Face-Dataset/cropped/"
 
+# Grab content image from link
 content_image = ImageUtils.grab_image('https://gradschool.cornell.edu/wp-content/uploads/2018/07/JonPark.jpg')
 
+# Make list of style images and shuffle the list
 dirs = os.listdir(path_to_pics)
 shuffle(dirs)
 
-ImageUtils.enableflashplot()
+# Opens MatPlotLib figure
 fig = plt.figure(figsize=(12,6))
+fig = plt.gcf()
+fig.canvas.set_window_title('Style Transfer')
+
 # For a whole directory
 for i, filename in enumerate(dirs):
+
+    # Limit number of style transfers
     if i > 5: break
+
+    # Attempt style transfer on content image with current style image
     try: 
         style_image   = ImageUtils.grab_image(path_to_pics + filename)
         style_orig    = style_image
+        style_image   = ImageUtils.clip_0_1(content_image + style_image)
 
-        style_image = ImageUtils.clip_0_1(content_image + style_image)
+        # Uses model from Tensor Flow Hub 
+        hub_model = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/1')
+        stylized_image = hub_model(tf.constant(content_image), tf.constant(style_image))[0]
 
-        hub_module = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/1')
-        stylized_image = hub_module(tf.constant(content_image), tf.constant(style_image))[0]
-        #stylized_image = style_image
+        # Uncomment this and comment out previous stylized_image definition to
+        # map style image on content image without style transfer  
+        # stylized_image = style_image
 
+        # Clear figure and update images
         fig.clf()
         plt.subplot(1, 3, 1); ImageUtils.imshow(content_image,  'Content Image')
         plt.subplot(1, 3, 2); ImageUtils.imshow(stylized_image, 'New Image')
