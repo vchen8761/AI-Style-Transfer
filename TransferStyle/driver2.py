@@ -64,15 +64,10 @@ for i, filename in enumerate(dirs):
         # Testing code begins here
 
         # Attempting to resize style image for hypothesis
-        #tf.image.resize(
-        #    style_image, style_image, tf.int32
-        #)
-
-        #basewidth = 300
-        #wpercent = (basewidth/float(tf.size(style_image)))
-        #hsize = int((float(tf.size(style_image)*float(wpercent))))
-        #style_image = style_image.resize((basewidth,hsize), Image.ANTIALIAS)
-        tf.cast(tf.shape(style_image), tf.int32) 
+        # This does not seem to do anything at all ???
+        tf.image.resize(
+            style_image, [1,1]
+        )
 
         # Testing code ends here
 
@@ -122,6 +117,9 @@ for i, filename in enumerate(dirs):
         print(" - Failed on image", i)
         print(f"\t> Image failed on {filename}: {e}.")
         fails += 1      # This skips fails. To be fixed later
+
+        # For testing
+        if fails > 5: quit()
         
         # if "n" == input(f" - Image failed on {filename}: {e}.\n - Type 'n' if to stop, anything else to go: "):
             # break
