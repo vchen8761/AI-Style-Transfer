@@ -19,6 +19,8 @@ from StyleContentModel  import StyleContentModel
 from ImageUtils         import ImageUtils
 from StyleTrans         import StyleTrans
 
+from PIL                import Image
+
 # Anime Style Images Dataset (Absolute and relative paths)
 # https://github.com/Mckinsey666/Anime-Face-Dataset
 if platform == "darwin":
@@ -58,6 +60,22 @@ for i, filename in enumerate(dirs):
     # Attempt style transfer on content image with current style image
     try: 
         style_image  = ImageUtils.grab_image(path_to_pics + filename)
+
+        # Testing code begins here
+
+        # Attempting to resize style image for hypothesis
+        #tf.image.resize(
+        #    style_image, style_image, tf.int32
+        #)
+
+        #basewidth = 300
+        #wpercent = (basewidth/float(tf.size(style_image)))
+        #hsize = int((float(tf.size(style_image)*float(wpercent))))
+        #style_image = style_image.resize((basewidth,hsize), Image.ANTIALIAS)
+        tf.cast(tf.shape(style_image), tf.int32) 
+
+        # Testing code ends here
+
         style_orig   = style_image
         style_image  = ImageUtils.image_op(
             images = [content_image, style_image],
