@@ -28,10 +28,11 @@ if platform == "darwin":
 else:
     # Specifics for Victor
     path_to_pics = "../Anime-Face-Dataset/cropped/"
+    # path_to_pics = "./images/"
 
 # Grab content image from link
 content_image = ImageUtils.grab_image('https://gradschool.cornell.edu/wp-content/uploads/2018/07/JonPark.jpg')
-# content_image = ImageUtils.grab_image('images/cloud1.jpg')
+# content_image = ImageUtils.grab_image('https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/12234558/Chinook-On-White-03.jpg')
 
 # Uses model from Tensor Flow Hub 
 
@@ -53,7 +54,7 @@ fails = 0
 for i, filename in enumerate(dirs):
 
     # Limit number of style transfers
-    if i - fails > 10: break
+    if i - fails > 5: break
 
     # Attempt style transfer on content image with current style image
     try: 
@@ -61,26 +62,26 @@ for i, filename in enumerate(dirs):
         
         # Testing code begins here
 
-        # Attempted to use PIL image resizing
-        # style_image = Image.open(path_to_pics + filename)
-        # style_image = style_image.resize((1000,1000))
-
         # Attempting to resize style image for hypothesis
         # So far just makes style image really pixelated
-        # style_image = tf.image.resize(style_image, (15,15),
+        # style_image = tf.image.resize(
+        #        style_image, (12,12), method='area',
         #        preserve_aspect_ratio = True, antialias = True)
 
-        # Used practice from Deep Dream Tensorflow tutorial - did not work :(
-        # style_image = tf.keras.applications.inception_v3.preprocess_input(style_image)
-        # style_image = tf.convert_to_tensor(style_image)
+        style_image = tf.image.resize_with_crop_or_pad(style_image, 1000,1000)
 
         # Scales image to have mean 0 and variance 1
-        # Oh no ... His power level is over 9000!
-        # style_image = tf.image.per_image_standardization(style_image)
+        style_image = tf.image.per_image_standardization(style_image)
 
         # Random saturation does not do much ... just looks like a cursed
         # heatmap
         # style_image = tf.image.random_saturation(style_image, 5, 10)
+
+        # Random contrast
+        # style_image = tf.image.random_contrast(style_image, 0.2, 0.5) 
+
+        # Central crop
+        # style_image = tf.image.central_crop(style_image, 0.75)
 
         # Testing code ends here
 
@@ -105,7 +106,7 @@ for i, filename in enumerate(dirs):
 
             ((1,3,2), ImageUtils.image_op(
                 images = [content_image, stylized_image, style_image],
-                op     = lambda a, b, c: (2 * a + 2 * b)/4
+                op     = lambda a, b, c: (a + b + c)/3
             ), 'Average Image'),
 
             ((2,3,3), style_orig,         'Style Image'),
