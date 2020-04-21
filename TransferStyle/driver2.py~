@@ -66,15 +66,17 @@ for i, filename in enumerate(dirs):
         # style_image = style_image.resize((1000,1000))
 
         # Attempting to resize style image for hypothesis
-        # So far just zooms in too much or not at all
-        # style_image = tf.image.resize(style_image, (3,5))
+        # So far just makes style image really pixelated
+        # style_image = tf.image.resize(style_image, (15,15),
+        #        preserve_aspect_ratio = True, antialias = True)
 
         # Used practice from Deep Dream Tensorflow tutorial - did not work :(
         # style_image = tf.keras.applications.inception_v3.preprocess_input(style_image)
         # style_image = tf.convert_to_tensor(style_image)
 
         # Scales image to have mean 0 and variance 1
-        style_image = tf.image.per_image_standardization(style_image)
+        # Oh no ... His power level is over 9000!
+        # style_image = tf.image.per_image_standardization(style_image)
 
         # Random saturation does not do much ... just looks like a cursed
         # heatmap
@@ -121,7 +123,7 @@ for i, filename in enumerate(dirs):
             ImageUtils.imshow(i, t)
        
         # View style transfers one by one
-        # input('Next? : ')
+        input('Next? : ')
 
         ImageUtils.flashplot()
 
