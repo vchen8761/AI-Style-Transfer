@@ -19,8 +19,6 @@ from StyleContentModel  import StyleContentModel
 from ImageUtils         import ImageUtils
 from StyleTrans         import StyleTrans
 
-from PIL                import Image
-
 # Anime Style Images Dataset (Absolute and relative paths)
 # https://github.com/Mckinsey666/Anime-Face-Dataset
 if platform == "darwin":
@@ -55,19 +53,33 @@ fails = 0
 for i, filename in enumerate(dirs):
 
     # Limit number of style transfers
-    if i - fails > 5: break
+    if i - fails > 10: break
 
     # Attempt style transfer on content image with current style image
     try: 
         style_image  = ImageUtils.grab_image(path_to_pics + filename)
-
+        
         # Testing code begins here
 
+        # Attempted to use PIL image resizing
+        # style_image = Image.open(path_to_pics + filename)
+        # style_image = style_image.resize((1000,1000))
+
         # Attempting to resize style image for hypothesis
-        # This does not seem to do anything at all ???
-        tf.image.resize(
-            style_image, [1,1]
-        )
+        # So far just zooms in too much or not at all
+        # style_image = tf.image.resize(style_image, (3,5))
+
+        # Used practice from Deep Dream Tensorflow tutorial - did not work :(
+        # style_image = tf.keras.applications.inception_v3.preprocess_input(style_image)
+        # style_image = tf.convert_to_tensor(style_image)
+
+        # Scales image to have mean 0 and variance 1
+        # Oh no ... His power level is over 9000!
+        style_image = tf.image.per_image_standardization(style_image)
+
+        # Random saturation does not do much ... just looks like a cursed
+        # heatmap
+        # style_image = tf.image.random_saturation(style_image, 5, 10)
 
         # Testing code ends here
 
@@ -108,7 +120,10 @@ for i, filename in enumerate(dirs):
         for c, i, t in plotset1:
             plt.subplot(*c)
             ImageUtils.imshow(i, t)
-        
+       
+        # View style transfers one by one
+        # input('Next? : ')
+
         ImageUtils.flashplot()
 
         print("\t> Finished")
